@@ -1,0 +1,81 @@
+Лабораторная работа №2
+Списки управления доступом (ACL)
+
+ACL прав доступа - определяет доступ к файлу или каталогу на основе утановленных прав
+ACL по умлочанию - назначается только папке. Все объекты внутри такой папки наследуют ACL родительской папки
+
+Модификация прав доступа осуществляется командой setfacl -m
+Просмотр прав доступа - компандой getfacl <имя объекта>
+
+Пример установки ACL (Установка разрешений на чтение и выполнение для пользователя tmp3):
+
+student@alexander-VirtualBox:~$ setfacl -m u:tmp3:rx StickyBit/
+student@alexander-VirtualBox:~$ ls -l
+итого 44
+drwxrwxr-x  6 student student 4096 авг 30 14:19  real
+drwx------  5 student student 4096 сен 10 11:58  snap
+drwxrwxrwt+ 3 student student 4096 ноя  6 09:20  StickyBit
+
+student@alexander-VirtualBox:~$ getfacl StickyBit/
+# file: StickyBit/
+# owner: student
+# group: student
+# flags: --t
+user::rwx
+user:tmp3:r-x
+group::rwx
+mask::rwx
+other::rwx
+
+Установка разрешений для пользователя tmp4:
+
+tudent@alexander-VirtualBox:~$ setfacl -m u:tmp4:rwx StickyBit/
+student@alexander-VirtualBox:~$ getfacl StickyBit/
+# file: StickyBit/
+# owner: student
+# group: student
+# flags: --t
+user::rwx
+user:tmp3:r-x
+user:tmp4:rwx
+group::rwx
+mask::rwx
+other::rwx
+
+Установка разрешений для группы tempgrp:
+
+student@alexander-VirtualBox:~$ setfacl -m g:tempgrp:rwx StickyBit/
+student@alexander-VirtualBox:~$ getfacl StickyBit/
+# file: StickyBit/
+# owner: student
+# group: student
+# flags: --t
+user::rwx
+user:tmp3:r-x
+user:tmp4:rwx
+group::rwx
+group:tempgrp:rwx
+mask::rwx
+other::rwx
+
+При смене разрешений командой chmod ACL сохраняются в прежнем виде, но сбрасывается mask:
+
+student@alexander-VirtualBox:~$ sudo chmod 755 StickyBit/
+student@alexander-VirtualBox:~$ ls -l
+итого 44
+drwxrwxr-x  6 student student 4096 авг 30 14:19  real
+drwx------  5 student student 4096 сен 10 11:58  snap
+drwxr-xr-x+ 3 student student 4096 ноя  6 09:20  StickyBit
+[Ostudent@alexander-VirtualBox:~$ getfacl StickyBit/
+# file: StickyBit/
+# owner: student
+# group: student
+user::rwx
+user:tmp3:r-x
+user:tmp4:rwx                   #effective:r-x
+group::rwx                      #effective:r-x
+group:tempgrp:rwx               #effective:r-x
+mask::r-x
+other::r-x
+
+~                                                         
