@@ -78,4 +78,102 @@ group:tempgrp:rwx               #effective:r-x
 mask::r-x
 other::r-x
 
-~                                                         
+mask устанавливает эффективные максимальные права доступа для всех польователей и групп, прописанных в ACL 
+Пользователи сохранят свои настройки ACL, но работают только с правами, определенными настройками mask
+
+Изменение mask:
+Student@alexandr-VirtualBox:~/StickyBit$ setfacl -m m:rwx ../StickyBit/
+
+Исключение пользователя или группы из ACL:
+Student@alexandr-VirtualBox:~/StickyBit$ setfacl -x u:tmp3 ./ (для пользователя)
+Student@alexandr-VirtualBox:~/StickyBit$ setfacl -x g:tempgrp ./ (для руппы)
+
+Установка наследования по умолчанию:
+student@alexander-VirtualBox:~/StickyBit$ setfacl -m d:u:tmp3:rwx ./
+
+student@alexander-VirtualBox:~/StickyBit$ getfacl ./
+# file: .
+# owner: student
+# group: student
+user::rwx
+group::rwx
+other::r-x
+default:user::rwx
+default:user:tmp3:rwx
+default:group::rwx
+default:mask::rwx
+default:other::r-x
+
+Пример применения по умолчанию
+student@alexander-VirtualBox:~/ACL$ getfacl PvtF/
+# file: PvtF/
+# owner: student
+# group: student
+user::rwx
+group::rwx
+other::r--
+default:user::rwx
+default:user:tmp3:r--
+default:user:tmp4:r-x
+default:group::rwx
+default:mask::rwx
+default:other::r-x
+
+student@alexander-VirtualBox:~/ACL$ SU TMP3
+SU: команда не найдена
+student@alexander-VirtualBox:~/ACL$ su tmp3
+Пароль:
+tmp3@alexander-VirtualBox:/home/student/ACL$ cd p
+bash: cd: p: Нет такого файла или каталога
+tmp3@alexander-VirtualBox:/home/student/ACL$ exit
+exit
+student@alexander-VirtualBox:~/ACL$ su tmp4
+Пароль:
+tmp4@alexander-VirtualBox:/home/student/ACL$ cd PvtF/
+bash: cd: PvtF/: Отказано в доступе
+tmp4@alexander-VirtualBox:/home/student/ACL$ exit
+exit
+student@alexander-VirtualBox:~/ACL$ setfacl -m u:tmp4:r-x PvtF/
+student@alexander-VirtualBox:~/ACL$ su tmp4
+Пароль:
+tmp4@alexander-VirtualBox:/home/student/ACL$ cd PvtF/
+tmp4@alexander-VirtualBox:/home/student/ACL/PvtF$ exit
+exit
+student@alexander-VirtualBox:~/ACL$ mkdir F1
+student@alexander-VirtualBox:~/ACL$ cd PvtF/
+                                                              123,1        75 %
+
+student@alexander-VirtualBox:~/ACL/PvtF$ mkdir F1
+student@alexander-VirtualBox:~/ACL/PvtF$ touch f1
+student@alexander-VirtualBox:~/ACL/PvtF$ ls -l
+итого 8
+-rw-rw-r--+ 1 student student    0 ноя 13 11:34 f1
+drwxrwxr-x+ 2 student student 4096 ноя 13 11:34 F1
+student@alexander-VirtualBox:~/ACL/PvtF$ getfacl F1
+# file: F1
+# owner: student
+# group: student
+user::rwx
+user:tmp3:r--
+user:tmp4:r-x
+group::rwx
+mask::rwx
+other::r-x
+default:user::rwx
+default:user:tmp3:r--
+default:user:tmp4:r-x
+default:group::rwx
+default:mask::rwx
+default:other::r-x
+
+student@alexander-VirtualBox:~/ACL/PvtF$ getfacl f1
+# file: f1
+# owner: student
+# group: student
+user::rw-
+user:tmp3:r--
+user:tmp4:r-x                   #effective:r--
+group::rwx                      #effective:rw-
+mask::rw-
+other::r--
+                                                                              
